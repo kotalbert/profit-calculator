@@ -13,16 +13,33 @@ func main() {
 	captureInput("Expenses", &expenses)
 	captureInput("Tax rate", &taxRate)
 
-	ebt := revenue - expenses
-	profit := ebt * (1 - taxRate)
-	ratio := ebt / profit
+	taxRate = taxRate / 100
+	ebt := calcEBT(revenue, expenses)
+	profit := calcProfit(ebt, taxRate)
+	ratio := calcRatio(ebt, profit)
 
+	printResults(ebt, profit, ratio)
+
+}
+
+func printResults(ebt float64, profit float64, ratio float64) {
 	fmt.Printf("Calculated:\n"+
 		"EBT: %g\n"+
 		"Profit: %g\n"+
 		"Ratio: %g\n",
 		ebt, profit, ratio)
+}
 
+func calcRatio(ebt float64, profit float64) float64 {
+	return ebt / profit
+}
+
+func calcProfit(ebt float64, taxRate float64) float64 {
+	return ebt * (1 - taxRate)
+}
+
+func calcEBT(revenue float64, expenses float64) float64 {
+	return revenue - expenses
 }
 
 func captureInput(msg string, p any) {
