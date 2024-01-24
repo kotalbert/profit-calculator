@@ -4,20 +4,24 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"os"
 )
 
 func main() {
 
-	var revenue, expenses, taxRate float64
+	revenue, errRev := captureFloat("Revenue")
+	if errRev != nil {
+		log.Fatal(errRev)
+	}
 
-	if err := captureFloat("Revenue", &revenue); err != nil {
-		log.Fatal(err)
+	expenses, errExp := captureFloat("Expenses")
+	if errExp != nil {
+		log.Fatal(errExp)
 	}
-	if err := captureFloat("Expenses", &expenses); err != nil {
-		log.Fatal(err)
-	}
-	if err := captureFloat("Tax rate", &taxRate); err != nil {
-		log.Fatal(err)
+
+	taxRate, errTax := captureFloat("Tax rate")
+	if errTax != nil {
+		log.Fatal(errTax)
 	}
 
 	taxRate = taxRate / 100
@@ -25,15 +29,23 @@ func main() {
 	profit := calcProfit(ebt, taxRate)
 	ratio := calcRatio(ebt, profit)
 
-	printResults(ebt, profit, ratio)
-
+	report := getResultsReport(ebt, profit, ratio)
+	fmt.Println(report)
+	writeReportToFile(report)
 }
 
-func printResults(ebt float64, profit float64, ratio float64) {
-	fmt.Printf(`Calculated:
-EBT: %g
-Profit: %g
-Ratio: %g`, ebt, profit, ratio)
+func writeReportToFile(report string) {
+	err := os.WriteFile("profit_report.txt", []byte(report), 0644)
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
+func getResultsReport(ebt float64, profit float64, ratio float64) string {
+	return fmt.Sprintf(`Calculated:
+EBT: %.2f
+Profit: %.2f
+Ratio: %.2f`, ebt, profit, ratio)
 }
 
 func calcRatio(ebt float64, profit float64) float64 {
@@ -48,16 +60,16 @@ func calcEBT(revenue float64, expenses float64) float64 {
 	return revenue - expenses
 }
 
-func captureFloat(msg string, p *float64) error {
+func captureFloat(msg string) (float64, error) {
 	fmt.Print(msg, ": ")
-	_, err := fmt.Scan(p)
+	var userInput float64
+	_, err := fmt.Scan(&userInput)
 	if err != nil {
 		log.Fatal(err)
 	}
 	// handle negative input
-	if *p <= 0 {
-		err := errors.New("expecting positive value")
-		return err
+	if userInput <= 0 {
+		return -1, errors.New("expecting positive value")
 	}
-	return nil
+	return userInput, nil
 }
