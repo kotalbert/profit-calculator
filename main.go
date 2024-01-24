@@ -23,11 +23,10 @@ func main() {
 }
 
 func printResults(ebt float64, profit float64, ratio float64) {
-	fmt.Printf("Calculated:\n"+
-		"EBT: %g\n"+
-		"Profit: %g\n"+
-		"Ratio: %g\n",
-		ebt, profit, ratio)
+	fmt.Printf(`Calculated:
+EBT: %g
+Profit: %g
+Ratio: %g`, ebt, profit, ratio)
 }
 
 func calcRatio(ebt float64, profit float64) float64 {
