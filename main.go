@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"log"
 )
@@ -9,9 +10,15 @@ func main() {
 
 	var revenue, expenses, taxRate float64
 
-	captureInput("Revenue", &revenue)
-	captureInput("Expenses", &expenses)
-	captureInput("Tax rate", &taxRate)
+	if err := captureFloat("Revenue", &revenue); err != nil {
+		log.Fatal(err)
+	}
+	if err := captureFloat("Expenses", &expenses); err != nil {
+		log.Fatal(err)
+	}
+	if err := captureFloat("Tax rate", &taxRate); err != nil {
+		log.Fatal(err)
+	}
 
 	taxRate = taxRate / 100
 	ebt := calcEBT(revenue, expenses)
@@ -41,10 +48,16 @@ func calcEBT(revenue float64, expenses float64) float64 {
 	return revenue - expenses
 }
 
-func captureInput(msg string, p any) {
+func captureFloat(msg string, p *float64) error {
 	fmt.Print(msg, ": ")
 	_, err := fmt.Scan(p)
 	if err != nil {
 		log.Fatal(err)
 	}
+	// handle negative input
+	if *p <= 0 {
+		err := errors.New("expecting positive value")
+		return err
+	}
+	return nil
 }
